@@ -28,11 +28,13 @@ def mine_block(k, prev_hash, transactions):
         nonce = str(nonce_int).encode('utf-8')
         full_block = block_base + nonce
         hash_bytes = hashlib.sha256(full_block).digest()
-        hash_binary = bin(int.from_bytes(hash_bytes, byteorder='big'))[2:].zfill(256)
-        trailing_zeros = len(hash_binary) - len(hash_binary.rstrip('0'))
+        hash_int = int.from_bytes(hash_bytes, 'big')
+        trailing_zeros = (hash_int & -hash_int).bit_length() - 1
 
         if trailing_zeros >= k:
             break
+        
+        nonce_int += 1
 
     assert isinstance(nonce, bytes), 'nonce should be of type bytes'
     return nonce
