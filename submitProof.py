@@ -72,7 +72,7 @@ def convert_leaves(primes_list):
     for p in primes_list:
         length = (p.bit_length() + 7) // 8 or 1
         pb = p.to_bytes(length, 'big')
-        leaf = Web3.keccak(pb)
+        leaf = Web3.solidity_keccak(['bytes'], [pb])
         leaves.append(leaf)
     return leaves
 
@@ -120,7 +120,7 @@ def prove_merkle(merkle_tree, random_indx):
         level_nodes = merkle_tree[level]
 
         if index % 2 == 0:
-            sibling_index = index + 1 if index + 1 < len(level_nodes) else index
+            sibling_index = index + 1 if index + 1 < len(level_nodes) else index - 1
         else:
             sibling_index = index - 1
 
@@ -148,7 +148,6 @@ def sign_challenge(challenge):
     # TODO YOUR CODE HERE
     eth_encoded_msg = eth_account.messages.encode_defunct(text=challenge)
     eth_sig_obj = eth_account.Account.sign_message(eth_encoded_msg, private_key=eth_sk)
-
     return addr, eth_sig_obj.signature.hex()
 
 
