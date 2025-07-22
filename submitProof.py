@@ -70,10 +70,8 @@ def convert_leaves(primes_list):
 
     leaves = []
     for p in primes_list:
-        length = (p.bit_length() + 7) // 8 or 1
-        pb = p.to_bytes(length, 'big')
-        leaf = Web3.solidity_keccak(['bytes'], [pb])
-        leaves.append(leaf)
+        prime_bytes32 = p.to_bytes(32, 'big')
+        leaves.append(prime_bytes32)
     return leaves
 
 
@@ -88,22 +86,18 @@ def build_merkle(leaves):
     #TODO YOUR CODE HERE
     tree = [leaves]
 
-    while len(tree[-1]) > 1:
-        current_level = tree[-1]
-        next_level = [] 
-
+    current_level = leaves
+    while len(current_level) > 1:
+        next_level = []
         for i in range(0, len(current_level), 2):
-            node1 = current_level[i]
-
-            if i + 1 < len(current_level):
-                node2 = current_level[i + 1]
-            else:
-                node2 = node1 
-
-            parent_hash = hash_pair(node1, node2)
-            next_level.append(parent_hash)
-
+            left = current_level[i]
+            right = current_level[i+1] if i + 1 < len(current_level) else left
+            
+            hashed_pair = hash_pair(left, right)
+            next_level.append(hashed_pair)
+        
         tree.append(next_level)
+        current_level = next_level
 
     return tree
 
