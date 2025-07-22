@@ -95,12 +95,12 @@ def build_merkle(leaves):
         for i in range(0, len(current), 2):
             a = current[i]
             if i + 1 < len(current):
-                b = current[i+1]
+                b = current[i + 1]
+                parent = hash_pair(a, b)
+                next.append(parent)
             else:
-                b = current[i]
-            
-            parent = hash_pair(a,b)
-            next.append(parent)
+                next.append(a)
+
         tree.append(next)
 
     return tree
@@ -120,9 +120,13 @@ def prove_merkle(merkle_tree, random_indx):
         level_nodes = merkle_tree[level]
 
         if index % 2 == 0:
-            sibling_index = index + 1 if index + 1 < len(level_nodes) else index - 1
+            if index + 1 < len(level_nodes):
+                sibling_index = index + 1
+            else:
+                continue
         else:
             sibling_index = index - 1
+
 
         merkle_proof.append(level_nodes[sibling_index])
 
