@@ -94,7 +94,7 @@ def build_merkle(leaves):
             right = current_level[i+1] if i + 1 < len(current_level) else left
             
             hashed_pair = hash_pair(left, right)
-            next_level.append(bytes(hashed_pair))
+            next_level.append(hashed_pair)
         
         tree.append(next_level)
         current_level = next_level
