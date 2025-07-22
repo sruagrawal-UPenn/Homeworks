@@ -90,16 +90,19 @@ def build_merkle(leaves):
 
     while len(tree[-1]) > 1:
         current_level = tree[-1]
-        next_level = []
+        next_level = [] 
 
         for i in range(0, len(current_level), 2):
             node1 = current_level[i]
+
             if i + 1 < len(current_level):
                 node2 = current_level[i + 1]
-                hashed_pair = hash_pair(node1, node2)
-                next_level.append(hashed_pair)
             else:
-                next_level.append(node1)
+                node2 = node1 
+
+            parent_hash = hash_pair(node1, node2)
+            next_level.append(parent_hash)
+
         tree.append(next_level)
 
     return tree
