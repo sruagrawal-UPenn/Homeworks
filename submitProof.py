@@ -94,7 +94,7 @@ def build_merkle(leaves):
             right = current_level[i+1] if i + 1 < len(current_level) else left
             
             hashed_pair = hash_pair(left, right)
-            next_level.append(hashed_pair)
+            next_level.append(bytes(hashed_pair))
         
         tree.append(next_level)
         current_level = next_level
@@ -124,7 +124,7 @@ def prove_merkle(merkle_tree, random_indx):
             sibling_index = index - 1
 
 
-        merkle_proof.append(level_nodes[sibling_index])
+        merkle_proof.append(bytes(level_nodes[sibling_index]))
 
         index = index // 2
 
