@@ -174,7 +174,7 @@ def send_signed_msg(proof, random_leaf):
         'chainId': 97
     })
 
-    signed_tx = acct.sign_transaction(tx)
+    signed_tx = eth_account.Account.sign_transaction(tx, acct.key)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
     return tx_hash
