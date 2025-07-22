@@ -164,20 +164,38 @@ def send_signed_msg(proof, random_leaf):
     w3 = connect_to(chain)
 
     # TODO YOUR CODE HERE
+    nonce = w3.eth.get_transaction_count(acct.address)
+    gas_price = w3.eth.gas_price
     contract = w3.eth.contract(address=address, abi=abi)
 
-    tx = contract.functions.submit(proof, random_leaf).build_transaction({
+    transaction = contract.functions.submit(proof, random_leaf).build_transaction({
+        'chainId': w3.eth.chain_id,
+        'gasPrice': gas_price,
         'from': acct.address,
-        'nonce': w3.eth.get_transaction_count(acct.address),
-        'gas': 200000,
-        'gasPrice': w3.to_wei('10', 'gwei'),
-        'chainId': 97
+        'nonce': nonce,
     })
 
-    signed_tx = eth_account.Account.sign_transaction(tx, acct.key)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    try:
+        gas_estimate = w3.eth.estimate_gas(transaction)
+        transaction['gas'] = gas_estimate
+        print(f"Estimated gas: {gas_estimate}")
+    except Exception as e:
+        print(f"Error estimating gas: {e}")
+        print("Using default gas limit of 2,000,000. This might fail if the actual gas needed is higher.")
+        transaction['gas'] = 2000000
 
-    return tx_hash
+    signed_txn = w3.eth.account.sign_transaction(transaction, private_key=acct.key)
+
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    
+    if tx_receipt.status == 1:
+        print(f"Transaction successful! Block: {tx_receipt.blockNumber}")
+    else:
+        print(f"Transaction failed! Receipt: {tx_receipt}")
+
+    return tx_hash.hex()
 
 
 # Helper functions that do not need to be modified
